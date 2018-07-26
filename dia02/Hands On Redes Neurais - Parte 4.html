@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>Hands On Redes Neurais - Parte 1</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>Hands On Redes Neurais - Parte 4</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 <style type="text/css">
@@ -11775,8 +11775,8 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Descri&#231;&#227;o-do-problema">Descri&#231;&#227;o do problema<a class="anchor-link" href="#Descri&#231;&#227;o-do-problema">&#182;</a></h1><p>Usuários da eNB1 se afastam da mesma em linha reta e com um ângulo aleatório, enquanto realizam o download de um vídeo de 15 MB. Eventualmente, devido ao enfraquecimento do sinal da sua eNB, eles fazem handover para a eNB2 ou eNB3 através do algoritmo A3RSRP. Com acesso aos <strong>sinais de referência</strong> das 3 eNBs no momento do handover, use redes neurais para prever em qual <strong>região</strong> (region) se encontra cada usuário e qual <strong>vazão</strong> (throughput) possui o mesmo nos primeiros 100 segundos de simulação.
-<img src="ang.png" style="width: 400px"></p>
+<h1 id="Parte-4---Sele&#231;&#227;o-e-avalia&#231;&#227;o-de-modelos">Parte 4 - Sele&#231;&#227;o e avalia&#231;&#227;o de modelos<a class="anchor-link" href="#Parte-4---Sele&#231;&#227;o-e-avalia&#231;&#227;o-de-modelos">&#182;</a></h1><p><font color='blue'>Nesta etapa do hands on, você deverá avaliar o desempenho das redes previamente criadas usando a validação cruzada e a curva de aprendizado. Além disso, também aprenderá a selecionar valores de parâmetros mais adequados à sua tarefa.</font></p>
+<p>Obs.: Todos os métodos mostrados nesta parte do hands on são aplicáveis a outras máquinas de aprendizado.</p>
 
 </div>
 </div>
@@ -11785,153 +11785,15 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Parte-1---Pr&#233;-processamento-de-dados">Parte 1 - Pr&#233;-processamento de dados<a class="anchor-link" href="#Parte-1---Pr&#233;-processamento-de-dados">&#182;</a></h1><p><font color=blue>Nesta etapa do hands on, você irá pré-processar os dados coletados de forma que os mesmos estejam adequados à utilização por redes neurais.</font></p>
-<h2 id="Importando-o-dataset-e-as-bibliotecas-essenciais">Importando o dataset e as bibliotecas essenciais<a class="anchor-link" href="#Importando-o-dataset-e-as-bibliotecas-essenciais">&#182;</a></h2>
+<h2 id="Valida&#231;&#227;o-cruzada">Valida&#231;&#227;o cruzada<a class="anchor-link" href="#Valida&#231;&#227;o-cruzada">&#182;</a></h2>
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Biblioteca usada para criar o frame de dados</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="c1"># Importando a biblioteca base do python</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-
-<span class="c1"># Ignorando warnings (opcional)</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
-
-<span class="c1"># Importando os dados</span>
-<span class="n">data</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data.txt&#39;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<span class="c1"># Visualizando as primeiras linhas da variavel data</span>
-<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[1]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>nRun</th>
-      <th>rsrp1</th>
-      <th>rsrq1</th>
-      <th>rsrp2</th>
-      <th>rsrq2</th>
-      <th>rsrp3</th>
-      <th>rsrq3</th>
-      <th>region</th>
-      <th>throughput</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>-97.9726</td>
-      <td>-9.52930</td>
-      <td>-97.1633</td>
-      <td>-8.72002</td>
-      <td>-94.3961</td>
-      <td>-5.95282</td>
-      <td>superior</td>
-      <td>3.956754</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>-96.3151</td>
-      <td>-8.53851</td>
-      <td>-92.5126</td>
-      <td>-4.73598</td>
-      <td>-104.0420</td>
-      <td>-16.26500</td>
-      <td>inferior</td>
-      <td>3.950170</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2</td>
-      <td>-96.7161</td>
-      <td>-8.88537</td>
-      <td>-92.9135</td>
-      <td>-5.08275</td>
-      <td>-100.0370</td>
-      <td>-12.20660</td>
-      <td>central</td>
-      <td>3.049065</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>3</td>
-      <td>-96.9771</td>
-      <td>-9.01505</td>
-      <td>-93.1471</td>
-      <td>-5.18508</td>
-      <td>-99.4380</td>
-      <td>-11.47600</td>
-      <td>central</td>
-      <td>2.912435</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>4</td>
-      <td>-96.2499</td>
-      <td>-8.68470</td>
-      <td>-92.2736</td>
-      <td>-4.70835</td>
-      <td>-103.3940</td>
-      <td>-15.82840</td>
-      <td>inferior</td>
-      <td>3.803656</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Obs.: O <strong>throughput</strong> se encontra em Mbps.</p>
+<h3 id="Exerc&#237;cio-1">Exerc&#237;cio 1<a class="anchor-link" href="#Exerc&#237;cio-1">&#182;</a></h3><p>Antes de começar a entender o conceito de validação cruzada, abra o código dedicado à tarefa de regressão. Modifique o parâmetro <strong><em>random_state</em></strong> da função <strong><em>train_test_split</em></strong>, use a rede neural feita com o sklearn para prever os valores de <strong>thoughput</strong> e meça o erro médio quadrático. Você obteve um resultado diferente? Realize o processo novamente para outro <strong><em>random_state</em></strong>. O resultado mudou outra vez?</p>
 
 </div>
 </div>
@@ -11940,63 +11802,74 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Dividindo-os-dados-em-vari&#225;veis-independentes-e-dependente">Dividindo os dados em vari&#225;veis independentes e dependente<a class="anchor-link" href="#Dividindo-os-dados-em-vari&#225;veis-independentes-e-dependente">&#182;</a></h2><ul>
-<li>A primeira tarefa a ser desempenhada pela rede neural será tentar prever em qual região o usuário que gerou esses dados está. Desta forma, <em>region</em> será a variável dependente.</li>
-<li>Deve-se tentar identificar quais variáveis independentes influenciam no valor da região, pois apenas estas variáveis devem ser passadas para a rede.<ul>
-<li>Resposta: os valores dos sinais de referência que ajudam a localizar a posiçao do usuário em relacao às 3 eNBs .</li>
-</ul>
+<p>Como pôde ser visto no exercício anterior, o estado aleatório da divisão entre o conjunto de treino e testes, feita pela função <strong><em>train_test_split</em></strong>, afeta a performance da rede neural. Em decorrência disso, testar a mesma em apenas um conjunto de testes pode não ser um bom indicador de desempenho, sobretudo se a variância na performance decorrente de dois estados aleatórios for muito alta.</p>
+<p>Para ter mais confiança no desempenho da rede, antes mesmo de testá-la no conjunto de testes, costuma-se usar o método de validação cruzada. Neste método, <strong>o conjunto de treino é subdividido em conjuntos de estimação e validação</strong>. O conjunto de estimação é usado no treinamento da rede, já o conjunto de validação é usado para testar o desempenho da mesma. Este processo é repetido, normalmente, em torno de 5 a 10 vezes, permitindo que o programador tenha uma percepção melhor da média e da variância do score da rede neural.</p>
+<p>Além disso, este método é frequentemente usado na seleção de modelos, como você verá abaixo, por permitir uma escolha não tendeciosa do melhor conjunto de parâmetros, já que a mesma é feita sem "espionar" o conjunto de testes.</p>
+<p>Veja alguns tipos de estratégias de validação cruzada contempladas pela biblioteca sklearn:</p>
+<ul>
+<li><p>K-fold (<strong><em>KFold</em></strong>)</p>
+<p><img src="cross-val.png" style="width: 400px"></p>
+<p>Como mostra a figura acima, nesta estratégia de validação cruzada o conjunto de treinamento é dividido em k subconjuntos de tamanho $\frac{n_{amostras}}{k}$. A cada iteração k, um deles se torna o conjunto de validação e os demais são destinados ao conjunto de estimação. Este tipo de validação <strong>garante que os k conjuntos de validação usados serão diferentes</strong>.</p>
 </li>
 </ul>
+<ul>
+<li><p>K-fold repetido (<strong><em>RepeatedKFold</em></strong>)</p>
+<p>Funciona da mesma maneira que a validação k-fold tradicional, mas repete o processo algumas vezes. A cada vez, ele divide de maneira diferente os k subconjuntos.</p>
+</li>
+</ul>
+<ul>
+<li><p>K-fold estratificado (<strong><em>StratifiedKFold</em></strong>)</p>
+<p>Ideal para problemas de classificação, este tipo de k-fold tenta fazer com que cada classe possua, nos subconjuntos, o mesmo percentual de exemplos que possuía no conjunto de treino original.</p>
+</li>
+</ul>
+<ul>
+<li><p>Deixe um de fora (<strong><em>LeaveOneOut</em></strong>)</p>
+<p>É a validação k-fold quando o k é igual ao número de exemplos presentes no conjunto de treino, de forma que, a cada execução, apenas 1 exemplo é destinado ao conjunto de validação, ficando o mesmo "de fora" do treinamento.</p>
+</li>
+</ul>
+<ul>
+<li><p>Embaralhe e divida (<strong><em>ShuffleSplit</em></strong>)</p>
+<p>Este tipo de validação cruzada funciona diferentemente dos demais. Ele permite que o programador defina o número de iterações, bem como o tamanho exato dos conjuntos de estimação e validação, não sendo o usuário limitado a múltiplos de $\frac{n_{amostras}}{n_{iterações}}$. A cada iteração, as amostras são embaralhadas e redivididas em conjuntos de validação e estimação e o score é computado. Apesar das vantagens, este tipo de validação cruzada <strong>não garante que os conjuntos de validação usados sejam distintos</strong>.</p>
+</li>
+</ul>
+<p>Veja abaixo como é implementada a estratégia de validação cruzada k-fold. Observe que a classe <em>KFold</em> apenas divide o conjunto de treino, sendo o cálculo dos scores feito pela função <em>cross_val_score</em>.</p>
 
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="K-fold">K-fold<a class="anchor-link" href="#K-fold">&#182;</a></h3>
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Variáveis independentes</span>
-<span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Variáveis independentes</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">head</span><span class="p">())</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="c1"># Variável dependente</span>
-<span class="n">y</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">7</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Variável dependente</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">head</span><span class="p">()))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importando a classe que divide o conjunto seguindo a estrategia k-fold</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">KFold</span>
+
+<span class="c1"># Criando um objeto da classe k-fold com k=5</span>
+<span class="c1"># Este objeto realizara a divisao do conjunto de treino</span>
+<span class="n">kf</span><span class="o">=</span><span class="n">KFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Importando a funcao de validacao cruzada</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">cross_val_score</span>
+
+<span class="c1"># Calculando os scores de validacao de acordo com a divisao kf</span>
+<span class="n">mse_sk</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="n">regressor_sk</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y_train</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">kf</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;neg_mean_squared_error&#39;</span><span class="p">)</span>
+
+<span class="c1"># Mostrando os resultados</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Erros médios quadráticos do regressor_sk: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="o">-</span><span class="n">mse_sk</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Média: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="o">-</span><span class="n">mse_sk</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Desvio padrão: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">mse_sk</span><span class="o">.</span><span class="n">std</span><span class="p">()))</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Variáveis independentes
-     rsrp1    rsrq1    rsrp2    rsrq2     rsrp3     rsrq3
-0 -97.9726 -9.52930 -97.1633 -8.72002  -94.3961  -5.95282
-1 -96.3151 -8.53851 -92.5126 -4.73598 -104.0420 -16.26500
-2 -96.7161 -8.88537 -92.9135 -5.08275 -100.0370 -12.20660
-3 -96.9771 -9.01505 -93.1471 -5.18508  -99.4380 -11.47600
-4 -96.2499 -8.68470 -92.2736 -4.70835 -103.3940 -15.82840
-
-Variável dependente
-0    superior
-1    inferior
-2     central
-3     central
-4    inferior
-Name: region, dtype: object
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -12005,51 +11878,91 @@ Name: region, dtype: object
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Lidando-com-vari&#225;veis-categ&#243;ricas">Lidando com vari&#225;veis categ&#243;ricas<a class="anchor-link" href="#Lidando-com-vari&#225;veis-categ&#243;ricas">&#182;</a></h2><ul>
-<li>No quadro acima, a variável <em>region</em> possui 3 categorias: superior, inferior e central. </li>
-<li>O algoritmo não saberá lidar com essa variável em formato textual, portanto, é necessário expressá-la em números.</li>
-</ul>
+<h3 id="Exerc&#237;cio-2">Exerc&#237;cio 2<a class="anchor-link" href="#Exerc&#237;cio-2">&#182;</a></h3><p>Verifique o score de validação cruzada da rede classifier_sk (parte 2 do hands on) usando a estratégia embaralhe e divida (ShuffleSplit).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Grid-search">Grid search<a class="anchor-link" href="#Grid-search">&#182;</a></h2><p>O grid search é um método de <strong>seleção de modelos</strong> usado para ajustar os valores dos parâmetros (parameter tunning) de uma máquina de aprendizado. Com ele, você pode escolher entre diversas candidatas à configuração da rede, <strong>testando-as no conjunto de treino</strong>, com o método de validação cruzada, para descobrir qual delas é mais adequada ao seu problema.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[35]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importando a classe usada para codificar variáveis categóricas</span>
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">LabelEncoder</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importando a classe usada para fazer o grid search</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">GridSearchCV</span>
 
-<span class="c1"># Criando um objeto Label Encoder</span>
-<span class="n">label_encoder</span><span class="o">=</span><span class="n">LabelEncoder</span><span class="p">()</span>
+<span class="c1"># Definindo os possiveis valores para o parametro hidden_layer_sizes</span>
+<span class="n">hl</span><span class="o">=</span><span class="p">[[</span><span class="mi">25</span><span class="p">],[</span><span class="mi">50</span><span class="p">],</span> <span class="p">[</span><span class="mi">100</span><span class="p">],</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span><span class="mi">50</span><span class="p">],[</span><span class="mi">25</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="mi">25</span><span class="p">],[</span><span class="mi">50</span><span class="p">,</span><span class="mi">100</span><span class="p">],[</span><span class="mi">100</span><span class="p">,</span><span class="mi">25</span><span class="p">],</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">50</span><span class="p">],[</span><span class="mi">100</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">25</span><span class="p">]]</span>
 
-<span class="c1"># Transformando os valores da variavel region</span>
-<span class="n">y</span><span class="o">=</span><span class="n">label_encoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="c1"># Criando um dicionario de parametros</span>
+<span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;hidden_layer_sizes&#39;</span><span class="p">:</span><span class="n">hl</span><span class="p">}</span>
+
+<span class="c1"># Criando um objeto grid search</span>
+<span class="c1"># Observe que apenas um numero foi passado no lugar do objeto de validacao cuzada</span>
+<span class="n">regressor_gs</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="n">MLPRegressor</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="s1">&#39;lbfgs&#39;</span><span class="p">),</span><span class="n">param_grid</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;neg_mean_squared_error&#39;</span><span class="p">)</span>
+
+<span class="c1"># Ajustando todas as possiveis redes ao conjunto de treino</span>
+<span class="c1"># A rede com melhor score no conjunto de treino sera escolhida</span>
+<span class="n">regressor_gs</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Mostrando os resultados</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Estimador escolhido: &#39;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">regressor_gs</span><span class="o">.</span><span class="n">best_estimator_</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Erro médio quadrático do estimador escolhido: &#39;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="o">-</span><span class="n">regressor_gs</span><span class="o">.</span><span class="n">best_score_</span><span class="p">))</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Exerc&#237;cio-3">Exerc&#237;cio 3<a class="anchor-link" href="#Exerc&#237;cio-3">&#182;</a></h3><p>Observe que apenas um número inteiro foi passado ao parâmetro <em>cv</em>, que deveria receber o objeto correspondente à estratégia de validação cruzada. Por que motivo o código acima não apresentou erros?</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Avalia&#231;&#227;o-dos-resultados">Avalia&#231;&#227;o dos resultados<a class="anchor-link" href="#Avalia&#231;&#227;o-dos-resultados">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importando a função que permite calcular o erro médio quadrático</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">mean_squared_error</span>
+
+<span class="c1"># Prevendo o output</span>
+<span class="n">y_pred</span><span class="o">=</span><span class="n">regressor_gs</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+
+<span class="c1"># Invertendo o StandardScaler</span>
+<span class="n">y_pred</span><span class="o">=</span><span class="n">fs_y</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
+
+<span class="c1"># Calculando o erro médio quadrático</span>
+<span class="n">mse</span><span class="o">=</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
 
 <span class="c1"># Resultado</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Erro médio quadrático: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">mse</span><span class="p">))</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>[2 1 0 ... 1 1 1]
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -12058,60 +11971,23 @@ Name: region, dtype: object
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Vari&#225;veis-categ&#243;ricas-com-mais-de-2-categorias-e-sem-disti&#231;&#227;o-de-maior-menor">Vari&#225;veis categ&#243;ricas com mais de 2 categorias e sem disti&#231;&#227;o de maior-menor<a class="anchor-link" href="#Vari&#225;veis-categ&#243;ricas-com-mais-de-2-categorias-e-sem-disti&#231;&#227;o-de-maior-menor">&#182;</a></h3><ul>
-<li>A variável <em>region</em> tem agora suas categorias indicadas pelos números 0, 1 e 2. </li>
-<li>Isto pode levar errôneamente a maquina a inferir que a região superior tem um valor maior que a central, que por sua vez, tem um valor maior do que a inferior, atrapalhado o processamento dos dados.</li>
-<li>Para evitar este erro, devemos usar variáveis "burras" (<strong>dummy variables</strong>).</li>
-<li>Isto não acontece quando há apenas 2 categorias.</li>
-</ul>
+<h3 id="Exerc&#237;cio-4">Exerc&#237;cio 4<a class="anchor-link" href="#Exerc&#237;cio-4">&#182;</a></h3><p>As linhas abaixo retornam valores iguais? Por quê?</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[36]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importando a classe usada para codificar as variaveis (já numericamente categorizadas) em dummy variables </span>
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">OneHotEncoder</span>
-
-<span class="c1"># Alterando a forma de y para varias linhas e 1 coluna</span>
-<span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-<span class="c1"># Criando um objeto One Hot Encoder</span>
-<span class="n">onehotencoder</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">()</span>
-<span class="n">y</span> <span class="o">=</span> <span class="n">onehotencoder</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
-
-<span class="c1"># Resultado</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Linha 1</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Erro médio quadrático do estimador escolhido: &#39;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="o">-</span><span class="n">regressor</span><span class="o">.</span><span class="n">best_score_</span><span class="p">))</span>
+<span class="c1"># Linha 2</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Erro médio quadrático: &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">mse</span><span class="p">))</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>[[0. 0. 1.]
- [0. 1. 0.]
- [1. 0. 0.]
- ...
- [0. 1. 0.]
- [0. 1. 0.]
- [0. 1. 0.]]
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -12120,25 +11996,229 @@ Name: region, dtype: object
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Dividindo-os-dados-em-conjunto-de-treino-e-conjunto-de-testes">Dividindo os dados em conjunto de treino e conjunto de testes<a class="anchor-link" href="#Dividindo-os-dados-em-conjunto-de-treino-e-conjunto-de-testes">&#182;</a></h2><ul>
-<li>Antes de estar pronta para fazer suas previsões, a rede precisa passar por um <strong>processo de aprendizagem</strong> para se ajustar ao problema em questão. Neste caso, nossa rede aprenderá de maneira <strong>supervisionada</strong>, o que significa que forneceremos vários exemplos (<strong>conjunto de treino</strong>) com as respostas esperadas para que a rede <strong>ajuste seus pesos</strong>.</li>
-<li>Após o processo de aprendizagem, podemos usar a rede para prever a informação desejada. Usualmente, testamos a eficácia da rede em um <strong>conjunto de testes</strong>, que é composto por exemplos que não estão presentes no conjunto de treino. Neste estágio, a rede apenas usa o que foi aprendido no anterior, sem reajustar seus pesos. As respostas esperadas não são, portanto, passadas à rede, sendo apenas usadas para medir a performance da mesma.</li>
-<li>A biblioteca sklearn possui uma função que divide os dados da maneira mais eficaz possível, garantindo que os conjuntos de treino e testes possuam, ambos, amostras que representem de forma satisfatória todo o dataset. Já imaginou o que aconteceria se todos os exemplos passados à rede na etapa de treino fossem da mesma região? A rede jamais aprenderia a identificar as demais e sua performance seria bem limitada. Da mesma forma, não teríamos uma dimensao exata da precisão da rede se a testássemos apenas para uma região. Por isso, é importante usar a função <strong><em>train_test_split</em></strong>.</li>
-</ul>
+<h3 id="Exerc&#237;cio-5">Exerc&#237;cio 5<a class="anchor-link" href="#Exerc&#237;cio-5">&#182;</a></h3><p>Crie um grid search para o solver da rede classifier_sk, feita na parte 2 deste hands on.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Curva-de-aprendizado">Curva de aprendizado<a class="anchor-link" href="#Curva-de-aprendizado">&#182;</a></h2><p>A curva de aprendizado é uma representação gráfica do ganho do desempenho da máquina de aprendizado com o aumento da experiência adquirida. Ela é uma ótima ferramenta para avaliar se o tamanho do conjunto de treino está satisfatório para o problema.</p>
+<p>Obs.: A execução do código abaixo pode demorar alguns minutos.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[37]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importando a funcao train_test_split</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">train_test_split</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importando a funcao que permite tracar a curva de aprendizado</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">learning_curve</span>
+<span class="c1"># Importando a classe que permite fazer validacao cruzada com um conjunto de testes de tamanho fixo</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">ShuffleSplit</span>
+<span class="c1"># Importando a biblioteca que desenha os graficos</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span> 
 
-<span class="c1"># Obtendo os conjuntos de treino (80%) e testes (20%)</span>
-<span class="n">x_train</span><span class="p">,</span><span class="n">x_test</span><span class="p">,</span><span class="n">y_train</span><span class="p">,</span><span class="n">y_test</span><span class="o">=</span><span class="n">train_test_split</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">test_size</span><span class="o">=</span><span class="mf">0.20</span><span class="p">,</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="c1"># Definindo o tamanho dos conjuntos de treinamento com relacao ao original</span>
+<span class="n">train_sizes</span><span class="o">=</span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="mi">100</span><span class="p">,</span><span class="mi">150</span><span class="p">,</span><span class="mi">200</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="mi">350</span><span class="p">,</span><span class="mi">400</span><span class="p">]</span>
+
+<span class="c1"># Definindo o objeto que ira realizar a divisao do conjunto de treino para a validacao cruzada</span>
+<span class="c1"># Usando 100 iteracoes para obter curvas mais suaves </span>
+<span class="n">cv</span> <span class="o">=</span> <span class="n">ShuffleSplit</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Define o estimador que sera usado</span>
+<span class="n">estimator</span><span class="o">=</span><span class="n">regressor_sk</span>
+
+<span class="c1"># Determina os scores de validacao cruzada para diferentes tamanhos de conjunto de treino</span>
+<span class="n">estimation_sizes</span><span class="p">,</span> <span class="n">estimation_scores</span><span class="p">,</span> <span class="n">validation_scores</span> <span class="o">=</span> <span class="n">learning_curve</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span> 
+                                                        <span class="n">train_sizes</span><span class="o">=</span><span class="n">train_sizes</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s2">&quot;neg_mean_squared_error&quot;</span><span class="p">)</span>
+
+<span class="c1"># Calculando a media e o desvio padrao dos scores de estimacao e validacao</span>
+<span class="n">estimation_scores_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">-</span><span class="n">estimation_scores</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">estimation_scores_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="o">-</span><span class="n">estimation_scores</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">validation_scores_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">-</span><span class="n">validation_scores</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">validation_scores_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="o">-</span><span class="n">validation_scores</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Ajustando os parametros do grafico </span>
+<span class="c1"># Definindo o tamanho do grafico</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="c1"># Definindo o titulo e a denominacao dos eixos do grafico</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Curva de aprendizagem&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Tamanho do conjunto de treino&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Erro médio quadrado&quot;</span><span class="p">)</span>
+
+<span class="c1"># Ativa as linhas de grid (grade) para o auxiliar a visualizacao</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+<span class="c1"># Com os valores de media e desvio padrao previamente calculados, cria as curvas de score</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">estimation_sizes</span><span class="p">,</span> <span class="n">estimation_scores_mean</span> <span class="o">-</span> <span class="n">estimation_scores_std</span><span class="p">,</span>
+                     <span class="n">estimation_scores_mean</span> <span class="o">+</span> <span class="n">estimation_scores_std</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                     <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">estimation_sizes</span><span class="p">,</span> <span class="n">validation_scores_mean</span> <span class="o">-</span> <span class="n">validation_scores_std</span><span class="p">,</span>
+                     <span class="n">validation_scores_mean</span> <span class="o">+</span> <span class="n">validation_scores_std</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;g&quot;</span><span class="p">)</span>
+
+<span class="c1"># Plota as curvas de score no grafico</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">estimation_sizes</span><span class="p">,</span> <span class="n">estimation_scores_mean</span><span class="p">,</span> <span class="s1">&#39;o-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span>
+             <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Score CV de estimação&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">estimation_sizes</span><span class="p">,</span> <span class="n">validation_scores_mean</span><span class="p">,</span> <span class="s1">&#39;x-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;g&quot;</span><span class="p">,</span>
+             <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Score CV de validação&quot;</span><span class="p">)</span>
+
+<span class="c1"># Deixa a legenda no lugar mais adequado</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Exerc&#237;cio-6">Exerc&#237;cio 6<a class="anchor-link" href="#Exerc&#237;cio-6">&#182;</a></h3><p>Discuta com os colegas o motivo das duas curvas terem comportamentos tão distintos?</p>
+<h3 id="Exerc&#237;cio-7">Exerc&#237;cio 7<a class="anchor-link" href="#Exerc&#237;cio-7">&#182;</a></h3><p>Faça a curva de aprendizagem para a rede do problema de classificação. Qual o comportamento das duas curvas? Você observa o mesmo problema exposto no item anterior? Por quê?</p>
+<p>Dica: Se lembre de alterar o parâmetro scoring.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="B&#244;nus---Usando-as-fun&#231;&#245;es-do-sklearn-com-o-keras">B&#244;nus - Usando as fun&#231;&#245;es do sklearn com o keras<a class="anchor-link" href="#B&#244;nus---Usando-as-fun&#231;&#245;es-do-sklearn-com-o-keras">&#182;</a></h2><h3 id="Implemente-uma-fun&#231;&#227;o-que-crie-sua-rede-neural">Implemente uma fun&#231;&#227;o que crie sua rede neural<a class="anchor-link" href="#Implemente-uma-fun&#231;&#227;o-que-crie-sua-rede-neural">&#182;</a></h3><p>Obs.: Se você pretende usar o grid search, passe como parâmetros da função todas as variáveis que você usará no dicionário passado ao <em>param_grid</em>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importando a biblioteca Keras</span>
+<span class="kn">import</span> <span class="nn">keras</span>
+
+<span class="c1"># Importando a classe usada para inicializar a rede neural</span>
+<span class="kn">from</span> <span class="nn">keras.models</span> <span class="k">import</span> <span class="n">Sequential</span>
+
+<span class="c1"># Importando a classe usada para criar as camadas da rede</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="n">Dense</span> 
+
+<span class="c1"># Criando a função da rede neural passando como parametros o numero de neuronios na camada escondida</span>
+<span class="k">def</span> <span class="nf">regressor</span><span class="p">(</span><span class="n">hl</span><span class="p">):</span>
+    <span class="c1"># Inicializando a rede neural</span>
+    <span class="n">regressor_kt</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
+    
+    <span class="c1"># Criando a variavel que inicializará os pesos</span>
+    <span class="n">init</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">initializers</span><span class="o">.</span><span class="n">RandomUniform</span><span class="p">(</span><span class="n">minval</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Criando a camada de entrada e a unica camada escondida da rede</span>
+    <span class="c1"># Teremos hl neuronios na camada escondida</span>
+    <span class="n">regressor_kt</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="n">output_dim</span><span class="o">=</span><span class="n">hl</span><span class="p">,</span><span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span><span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">input_dim</span><span class="o">=</span><span class="mi">6</span><span class="p">))</span>
+    
+    <span class="c1"># Criando a camada de saida da rede</span>
+    <span class="n">regressor_kt</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="n">output_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span><span class="n">activation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">))</span>
+             
+    <span class="c1"># Compiling a rede neural</span>
+    <span class="n">regressor_kt</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;adam&#39;</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mean_squared_error&#39;</span><span class="p">)</span>
+             
+    <span class="c1"># Retornando a rede</span>
+    <span class="k">return</span> <span class="n">regressor_kt</span>
+             
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Instancie-um-objeto-da-classe-KerasRegressor-(regress&#227;o)-ou-KerasClassifier-(classifica&#231;&#227;o)">Instancie um objeto da classe KerasRegressor (regress&#227;o) ou KerasClassifier (classifica&#231;&#227;o)<a class="anchor-link" href="#Instancie-um-objeto-da-classe-KerasRegressor-(regress&#227;o)-ou-KerasClassifier-(classifica&#231;&#227;o)">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importando a classe que possibilita a integracao entre as duas bibliotecas para problemas de regressao</span>
+<span class="kn">from</span> <span class="nn">keras.wrappers.scikit_learn</span> <span class="k">import</span> <span class="n">KerasRegressor</span>
+
+<span class="c1"># Criando um regressor compativel com a biblioteca sklearn</span>
+<span class="c1"># E aqui que o numero de epocas e o batch_size deve ser definido</span>
+<span class="n">regressor</span> <span class="o">=</span> <span class="n">KerasRegressor</span><span class="p">(</span><span class="n">build_fn</span><span class="o">=</span><span class="n">regressor_kt</span><span class="p">,</span> <span class="n">hl</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Treine-e-teste-sua-rede-da-mesma-maneira-que-faria-com-uma-rede-do-sklearn">Treine e teste sua rede da mesma maneira que faria com uma rede do sklearn<a class="anchor-link" href="#Treine-e-teste-sua-rede-da-mesma-maneira-que-faria-com-uma-rede-do-sklearn">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Ajustando os pesos da rede ao conjunto de treino</span>
+<span class="n">regressor</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Aplicando a rede ja treinada ao conjunto de testes</span>
+<span class="n">y_pred</span><span class="o">=</span><span class="n">regressor_sk</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Exemplo---Grid-search-no-keras">Exemplo - Grid search no keras<a class="anchor-link" href="#Exemplo---Grid-search-no-keras">&#182;</a></h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importando a classe usada para fazer o grid search</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">GridSearchCV</span>
+
+<span class="c1"># Definindo os possiveis valores para o parametro hl, definido na funcao regressor</span>
+<span class="n">hl</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">25</span><span class="p">]</span>
+
+<span class="c1"># Criando um dicionario de parametros</span>
+<span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;hl&#39;</span><span class="p">:</span><span class="n">hl</span><span class="p">}</span>
+
+<span class="c1"># Criando um objeto grid search com o keras</span>
+<span class="n">regressor_gs</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="n">KerasRegressor</span><span class="p">(</span><span class="n">build_fn</span><span class="o">=</span><span class="n">regressor_kt</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span><span class="n">param_grid</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;neg_mean_squared_error&#39;</span><span class="p">)</span>
+
+<span class="c1"># Ajustando todas as possiveis redes ao conjunto de treino</span>
+<span class="c1"># A rede com melhor score no conjunto de treino sera escolhida</span>
+<span class="c1"># Observe que o metodo fit esta sendo usado da mesma forma que no sklearn</span>
+<span class="n">regressor_gs</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12148,159 +12228,18 @@ Name: region, dtype: object
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[38]:</div>
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Verificando a quantidade de dados de cada regiao</span>
-
-<span class="c1"># Conjunto de treino</span>
-<span class="n">inf</span><span class="o">=</span><span class="n">y_train</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-<span class="n">cent</span><span class="o">=</span><span class="n">y_train</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-<span class="n">sup</span><span class="o">=</span><span class="n">y_train</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Composicao do conjunto de treino:&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Regiao inferior = &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">inf</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Regiao central = &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">cent</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Regiao superior = &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">sup</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<span class="c1"># Conjunto de testes</span>
-<span class="n">inf</span><span class="o">=</span><span class="n">y_test</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-<span class="n">cent</span><span class="o">=</span><span class="n">y_test</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-<span class="n">sup</span><span class="o">=</span><span class="n">y_test</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Composicao do conjunto de testes:&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Regiao inferior = &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">inf</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Regiao central = &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">cent</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Regiao superior = &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">sup</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Mostrando os parametros escolhidos e o score</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">regressor_gs</span><span class="o">.</span><span class="n">best_params_</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="o">-</span><span class="n">regressor_gs</span><span class="o">.</span><span class="n">best_score_</span><span class="p">)</span>
 </pre></div>
 
 </div>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Composicao do conjunto de treino:
-Regiao inferior = 2598.0
-Regiao central = 2706.0
-Regiao superior = 2696.0
-
-Composicao do conjunto de testes:
-Regiao inferior = 675.0
-Regiao central = 645.0
-Regiao superior = 680.0
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Feature-scaling">Feature scaling<a class="anchor-link" href="#Feature-scaling">&#182;</a></h2><ul>
-<li>É importante deixar os <strong>features</strong> (variáveis independentes) na <strong>mesma escala</strong> para acelerar o processamento da rede neural e melhorar o seu desempenho.</li>
-<li>Existem vários tipos de padronizadores de escala para python, usaremos aqui o StandardScaler e o MinMaxScaler.</li>
-</ul>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="StandardScaler"><em>StandardScaler</em><a class="anchor-link" href="#StandardScaler">&#182;</a></h3><ul>
-<li>Deixa cada feature de x com uma distribuição gaussiana centrada em 0 e com desvio padrão igual a 1.</li>
-<li>Fórmula:<br>
- #### <center> $ x_{stand} = \frac{x - media(x)}{std(x)}$ </center></li>
-</ul>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[66]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Importando a classe StandardScaler</span>
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">StandardScaler</span>
-
-<span class="c1"># Criando um objeto standard scaler</span>
-<span class="n">fs</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
-
-<span class="c1"># Ajustando fs ao conjunto de treino</span>
-<span class="c1"># transformando os features do conjunto de treino</span>
-<span class="n">x_train</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span>
-
-<span class="c1"># Transformando os features do conjunto de testes</span>
-<span class="c1"># So e necessario usar &quot;fit&quot; no conjunto de treino</span>
-<span class="n">x_test</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
-
-<span class="c1"># Resultado</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">x_test</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">,:])</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>[[ 1.16792464  1.03977203  0.8876307   0.7611939  -0.98160775 -1.03671221]
- [ 0.63633682  0.40519077  0.81193876  0.72903243 -0.60431154 -0.64843178]
- [ 0.90296154  1.38392602  0.78732034  0.79062354 -1.51098648 -1.45141723]
- [-0.41584662 -0.22320138 -1.29457875 -1.26367518  1.19815723  1.19007538]]
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="MinMaxScaler"><em>MinMaxScaler</em><a class="anchor-link" href="#MinMaxScaler">&#182;</a></h3><ul>
-<li>Também é conhecido como min-max normalizer.</li>
-<li>Deixa cada feature de x com valores percentuais na forma decimal, sendo min(x) = 0 e max(x) = 1.</li>
-<li>Fórmula:<br>
-  ####  <center>  $ x_{norm} = \frac{x - min(x)}{max(x) - min(x)}$  </center> </li>
-</ul>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Exerc&#237;cio-1">Exerc&#237;cio 1<a class="anchor-link" href="#Exerc&#237;cio-1">&#182;</a></h2><p>Desfaça a padronização feita com o <em>StandardScaler</em> e repadronize os features usando o <em>MinMaxScaler</em>.</p>
-<p>Obs.: Para fazer esse exercício, você deverá consultar a documentação das classes <a href="http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html">StandardScaler</a> e <a href="http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html">MinMaxScaler</a>.</p>
-<h2 id="Exerc&#237;cio-2">Exerc&#237;cio 2<a class="anchor-link" href="#Exerc&#237;cio-2">&#182;</a></h2><p>Em um novo notebook, realize o pré-processamento dos dados para encontrar a vazão (<strong>throughput</strong>) da rede com o padronizador <em>StandardScaler</em>.</p>
-
-</div>
-</div>
 </div>
     </div>
   </div>
