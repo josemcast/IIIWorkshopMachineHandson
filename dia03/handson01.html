@@ -11811,7 +11811,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span><span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span><span class="s1">&#39;C&#39;</span><span class="p">,</span><span class="s1">&#39;C&#39;</span><span class="p">:</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="s1">&#39;D&#39;</span><span class="p">:</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;E&#39;</span><span class="p">:</span><span class="s1">&#39;E&#39;</span><span class="p">}</span>
@@ -11834,7 +11834,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
@@ -11858,7 +11858,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span> <span class="c1"># apenas para uso do sys.exit()</span>
@@ -11928,15 +11928,18 @@ Estado atual: A, proximo estado: E
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="n">R</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="c1">#Matrix de recompensas </span>
-     <span class="s1">&#39;B&#39;</span><span class="p">:[</span><span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">],</span>
-     <span class="s1">&#39;C&#39;</span><span class="p">:[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">],</span>
-     <span class="s1">&#39;D&#39;</span><span class="p">:[</span><span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">],</span>
-     <span class="s1">&#39;E&#39;</span><span class="p">:[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="mi">1</span><span class="p">]}</span> <span class="c1"># -90 eh utilizado como referencia mais baixa para indicar um estado que não da para ir</span>
+
+<span class="n">m_inf</span> <span class="o">=</span>  <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span> <span class="c1"># - infinito</span>
+
+<span class="n">R</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">m_inf</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">m_inf</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="c1">#Matriz de recompensas </span>
+     <span class="s1">&#39;B&#39;</span><span class="p">:[</span><span class="n">m_inf</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">m_inf</span><span class="p">,</span> <span class="n">m_inf</span><span class="p">],</span>
+     <span class="s1">&#39;C&#39;</span><span class="p">:[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="n">m_inf</span><span class="p">],</span>
+     <span class="s1">&#39;D&#39;</span><span class="p">:[</span><span class="n">m_inf</span><span class="p">,</span> <span class="n">m_inf</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">m_inf</span><span class="p">,</span> <span class="n">m_inf</span><span class="p">],</span>
+     <span class="s1">&#39;E&#39;</span><span class="p">:[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">m_inf</span><span class="p">,</span> <span class="n">m_inf</span><span class="p">,</span> <span class="n">m_inf</span><span class="p">,</span> <span class="mi">1</span><span class="p">]}</span> <span class="c1"># -inf eh utilizado como referencia mais baixa para indicar um estado que não da para ir</span>
 
 <span class="n">map_index</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="s1">&#39;B&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">:</span><span class="s1">&#39;C&#39;</span><span class="p">,</span><span class="mi">3</span><span class="p">:</span><span class="s1">&#39;D&#39;</span><span class="p">,</span><span class="mi">4</span><span class="p">:</span><span class="s1">&#39;E&#39;</span><span class="p">}</span> <span class="c1"># Mapeamento estados - indices </span>
 
@@ -11990,7 +11993,7 @@ Estado atual: A, proximo estado: E
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Neste novo código utilizamos as recompensas dadas por cada estado como guia para agente durante a sua busca pelo objetivo. Os valores de <em>-90</em> utilizados no mapeamento da variável R são para indicar um "ponto fora da curva", i.e para mostrar que dado aquele estado atual, esse próximo estado com recompensa -90 não está disponível (não se pode ir por exemplo direto do estado "D" para o estado "A").</p>
+<p>Neste novo código utilizamos as recompensas dadas por cada estado como guia para agente durante a sua busca pelo objetivo. Os valores de <em>-inf</em> utilizados no mapeamento da variável R são para indicar um "ponto fora da curva", i.e para mostrar que dado aquele estado atual, esse próximo estado com recompensa -inf não está disponível (não se pode ir por exemplo direto do estado "D" para o estado "A").</p>
 <p>Exposto esses dois exemplos: um de comportamento do agente e outro por recompensa, vamos colocar a mão na massa um pouco.</p>
 <p>Dado o seguinte ambiente:</p>
 <p><img src="rlimages/planta_exec.jpg" alt="alt text"></p>
